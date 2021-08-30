@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="memberMapper">
+
+
+	<insert id="memberRegister">
+	    INSERT INTO MEMBER(   USERID 
+	   					       , USERPASSWORD 
+	   					       , USERNAME
+	   					       , PHONENUM
+	   					       , EMAIL
+	   					       ,ENABLED 	)
+	                  VALUES(    #{userId} 
+	                 		   , #{userPass}
+	                 		   , #{userName}
+	                 		   , #{phoneNum}
+	                 		   , #{email}
+	                 		   ,1)
+    </insert> 
+    
+    <!--로그인  -->
+    	
+	
+    <select id="memberLogin" resultType="asadal.jaeyoung.vo.MemberVO">
+		SELECT *
+		  FROM MEMBER
+		 WHERE USERID = #{userId}
+		   AND USERPASSWORD = #{userPass}   
+	</select>
+    <!-- 회원정보 수정 -->
+	<update id="memberUpdate">
+		UPDATE MEMBER SET 
+		USERPASSWORD = #{userPass},
+		USERNAME = #{userName},
+		PHONENUM = #{phoneNum},
+		EMAIL = #{email},
+		AUTH = #{auth},
+		ENABLED=#{enabled}
+		WHERE USERID = #{userId}
+	</update>
+	
+	<!-- 회원탈퇴 -->
+<delete id="memberDelete">
+	DELETE FROM MEMBER
+	WHERE USERID = #{userId}
+	  AND USERPASSWORD = #{userPass} 
+</delete>
+<!-- 아이디 중복 체크 -->
+<select id="memberIdChk" resultType="int">
+	SELECT COUNT(*) FROM MEMBER
+	WHERE USERID = #{userId}
+</select>
+
+
+<!-- 회원리스트 -->
+<select id="memberListPage" resultType="asadal.jaeyoung.vo.MemberVO" parameterType="asadal.jaeyoung.paging.SearchCriteria">
+		SELECT  USERID, 
+		        USERPASSWORD, 
+		        USERNAME,
+		        PHONENUM, 
+		        EMAIL,
+		        AUTH,
+		        ENABLED
+		 FROM ( 
+		        SELECT USERID, 
+		               USERPASSWORD, 
+		               USERNAME, 
+		               PHONENUM, 
+		               EMAIL,
+		               AUTH,
+		               ENABLED, 
+		               ROW_NUMBER() OVER(ORDER BY USERID DESC) AS RNUM
+		         FROM MEMBER
+		         WHERE 1=1 
+		         	<include refid="search"></include>
+		                       ) MP
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY USERID DESC
+	</select>
+	
+	<select id="listCount" parameterType="asadal.jaeyoung.paging.SearchCriteria" resultType="int">
+		SELECT COUNT(USERID)
+		   FROM MEMBER
+		   WHERE 1=1 
+		<include refid="search"></include>	
+		   AND USERID IS NOT NULL
+	</select>
+	
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND USERID LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND USERNAME LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'w'.toString()">AND PHONENUM LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'tc'.toString()">AND (USERID LIKE '%' || #{keyword} || '%') or (PHONENUM LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>
+	
+	<select id ="getByUserId" parameterType="String" resultType ="asadal.jaeyoung.vo.MemberVO">
+	
+		SELECT * FROM MEMBER
+		WHERE USERID=#{userId}
+	</select>
+	
+</mapper>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="boardMapper">
+
+	<insert id="insert">
+
+		insert into board(board_id,board_title,board_content, board_writer)
+			values(board_seq.nextval, #{board_title},#{board_content},#{board_writer})
+
+	</insert>
+
+<select id="listPage" resultType="asadal.jaeyoung.vo.BoardVO" parameterType="asadal.jaeyoung.paging.SearchCriteria">
+		SELECT  BOARD_ID, 
+		        BOARD_TITLE, 
+		        BOARD_CONTENT,
+		        BOARD_WRITER, 
+		        BOARD_REGDATE,
+		        HIT
+		 FROM ( 
+		        SELECT BOARD_ID, 
+		               BOARD_TITLE, 
+		               BOARD_CONTENT, 
+		               BOARD_WRITER, 
+		               BOARD_REGDATE, 
+		               HIT,
+		               ROW_NUMBER() OVER(ORDER BY BOARD_ID DESC) AS RNUM
+		         FROM BOARD
+		         WHERE 1=1 
+		         	<include refid="search"></include>
+		                       ) MP
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY BOARD_ID DESC
+	</select>
+	
+	<select id="listCount" parameterType="asadal.jaeyoung.paging.SearchCriteria" resultType="int">
+		SELECT COUNT(BOARD_ID)
+		   FROM BOARD
+		   WHERE 1=1
+		<include refid="search"></include>	
+		   AND BOARD_ID > 0
+	</select>
+	
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND BOARD_TITLE LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND BOARD_CONTENT LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'w'.toString()">AND BOARD_WRITER LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'tc'.toString()">AND (BOARD_TITLE LIKE '%' || #{keyword} || '%') or (BOARD_CONTENT LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>
+<!--  리스트로 나타내주는 쿼리 -->
+<!-- 	<select id="list" resultType="asadal.jaeyoung.vo.NoticeVO">
+		SELECT   ID
+			   , TITLE
+			   , WRITER
+			   , REGDATE
+		  FROM NOTICE
+		  ORDER BY ID DESC
+	</select> -->
+	
+		<select id="read" parameterType="int" resultType="asadal.jaeyoung.vo.BoardVO">
+		SELECT	BOARD_ID
+			  , BOARD_TITLE
+			  , BOARD_CONTENT
+			  , BOARD_WRITER
+			  , BOARD_REGDATE
+		 FROM BOARD
+		 WHERE BOARD_ID = #{board_id}
+	</select>
+	
+	    <update id="update" parameterType="asadal.jaeyoung.vo.BoardVO">
+		UPDATE BOARD
+		   SET BOARD_TITLE    =   #{board_title},
+		   	   BOARD_CONTENT  =   #{board_content}
+		 WHERE BOARD_ID = #{board_id} 
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE 
+		  FROM BOARD
+		 WHERE BOARD_ID = #{board_id}
+		 
+	</delete>
+	
+	<!--게시판 조회수  -->
+	<update id="boardHit" parameterType="int">
+		UPDATE BOARD SET
+		HIT = HIT+1
+		WHERE BOARD_ID=#{board_id}
+	</update>
+	
+<!-- 	<resultMap id="NoticeResultMap" type="NoticeVO">
+		<id property="id" column="ID" />
+		<result property="title" column="TITLE"></result>
+		<result property="content" column="CONTENT"></result>
+		<result property="writer" column="WRITER"></result>
+		<result property="regdate" column="REG_DATE"></result>
+		
+
+	</resultMap>
+ -->
+</mapper>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bidScoreMapper">
+<!-- <insert id="bidScoreInsert">
+	INSERT INTO BID_SCORE(
+		BID_ID
+		, SCORE_ID
+		, PRICE
+		, TECH_SCORE
+		,TOTAL_SCORE
+		,COMPANY_NAME
+		
+	)
+	VALUES(    #{bid_id}
+		, BID_SCORE_SEQ.NEXTVAL
+		, #{price}
+		, #{tech_score}
+		, #{total_score}
+		, #{company_name}
+			)
+	</insert> -->
+	<insert id="bidScoreInsert" parameterType="asadal.jaeyoung.vo.BidScoreVO" useGeneratedKeys="true" keyProperty="score_id">
+	    <selectKey keyProperty="score_id" resultType="int" order="BEFORE">
+	    	SELECT BID_SCORE_SEQ.NEXTVAL FROM DUAL
+	    </selectKey>
+	    INSERT INTO BID_SCORE(    BID_ID 
+	   					       , SCORE_ID
+	   					       , PRICE 
+	   					       , TECH_SCORE
+	   					       ,TOTAL_SCORE
+	   					       ,COMPANY_NAME	  )
+	                  VALUES(   #{bid_id}
+	                  			,#{score_id}
+	                  		   , #{price}
+								, #{tech_score}
+								, #{total_score}
+								, #{company_name}  )
+   
+    </insert>
+	<select id ="getMinPrice" resultType="int">
+	SELECT MIN(PRICE)
+	FROM BID_SCORE
+	WHERE BID_ID=#{bid_id}
+	</select>
+	
+	<update id ="bidTotalScore" parameterType="asadal.jaeyoung.vo.BidScoreVO">
+
+	UPDATE BID_SCORE SET TOTAL_SCORE = #{total_score}
+	WHERE SCORE_ID=#{score_id}
+	</update>
+		<select id="bidListNoTotal" resultType="asadal.jaeyoung.vo.BidScoreVO">
+		SELECT *
+		FROM BID_SCORE
+		WHERE BID_ID = #{bid_id}
+	</select>
+	<!--  점수 순대로 조회 -->	<!-- tech_score 평가 조회 -->
+		<select id="bidList" resultType="asadal.jaeyoung.vo.BidScoreVO">
+		SELECT
+		*
+		FROM BID_SCORE
+		WHERE BID_ID = #{bid_id}
+		ORDER BY TOTAL_SCORE DESC
+	</select>
+	<!-- tech_score 평가 입력하기 전 하나만조회-->
+			<select id="bidCompanySelect" parameterType="int" resultType="asadal.jaeyoung.vo.BidScoreVO">
+		SELECT	SCORE_ID
+			  , BID_ID
+			  , PRICE
+			  , TECH_SCORE
+			  , TOTAL_SCORE
+			  , COMPANY_NAME
+		 FROM BID_SCORE
+		 WHERE SCORE_ID = #{score_id}
+	</select>
+	<!-- 기술점수 평가 입력 -->
+		<update id ="bidTechScore" parameterType="asadal.jaeyoung.vo.BidScoreVO">
+
+	UPDATE BID_SCORE SET TECH_SCORE = #{tech_score}
+	WHERE SCORE_ID=#{score_id}
+	</update>
+
+<insert id="insertFile" parameterType="hashMap">
+		INSERT INTO TECH_FILE(
+			FILE_NO,
+			SCORE_ID,
+			ORG_FILE_NAME,
+			STORED_FILE_NAME,
+			FILE_SIZE
+		)VALUES(
+			TECH_FILE_SEQ.NEXTVAL,
+			#{SCORE_ID},
+			#{ORG_FILE_NAME},
+			#{STORED_FILE_NAME},
+			#{FILE_SIZE}
+		)
+    </insert>	
+    <!-- 첨부파일 조회 -->
+<select id="selectFileList" parameterType="int" resultType="hashMap">
+	SELECT FILE_NO,
+		   ORG_FILE_NAME,
+		   ROUND(FILE_SIZE/1024,1) AS FILE_SIZE
+	  FROM TECH_FILE
+	 WHERE SCORE_ID = #{score_id}
+	   AND DEL_GB = 'N'
+</select>
+
+<!-- 첨부파일 다운 -->
+<select id="selectFileInfo" parameterType="hashMap" resultType="hashMap">
+	SELECT 
+		STORED_FILE_NAME,
+		ORG_FILE_NAME
+	FROM TECH_FILE
+	WHERE FILE_NO = #{FILE_NO}
+</select>
+	
+	
+
+</mapper>

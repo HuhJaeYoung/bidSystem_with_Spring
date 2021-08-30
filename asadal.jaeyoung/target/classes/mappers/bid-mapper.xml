@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bidMapper">
+
+<!-- <insert id="bidInsert">
+
+		insert into BID(BID_ID,BID_TITLE,BID_CONTENT, BID_WRITER,BID_PRICE,BID_STATUS)
+			values(bid_seq.nextval, #{bid_title},#{bid_content},#{bid_writer},#{bid_price},'0')
+
+	</insert> -->
+	
+	<insert id="bidInsert" parameterType="asadal.jaeyoung.vo.BidVO" useGeneratedKeys="true" keyProperty="bid_id">
+	    <selectKey keyProperty="bid_id" resultType="int" order="BEFORE">
+	    	SELECT BID_SEQ.NEXTVAL FROM DUAL
+	    </selectKey>
+	    INSERT INTO BID(    BID_ID
+	   					       , BID_TITLE 
+	   					       , BID_CONTENT 
+	   					       ,  BID_WRITER
+	   					       ,BID_PRICE
+	   					       ,BID_STATUS  )
+	                  VALUES(    #{bid_id}
+	                 		   , #{bid_title}
+	                 		   , #{bid_content}
+	                 		   , #{bid_writer}
+	                 		   ,#{bid_price}
+	                 		   ,'0'  )
+   
+    </insert>
+
+<select id="bidListPage" resultType="asadal.jaeyoung.vo.BidVO" parameterType="asadal.jaeyoung.paging.SearchCriteria">
+		SELECT  BID_ID, 
+		        BID_TITLE, 
+		        BID_CONTENT,
+		        BID_WRITER, 
+		        REGDATE
+		 FROM ( 
+		        SELECT BID_ID, 
+		               BID_TITLE, 
+		               BID_CONTENT, 
+		               BID_WRITER, 
+		               REGDATE, 
+		               ROW_NUMBER() OVER(ORDER BY BID_ID DESC) AS RNUM
+		         FROM BID
+		         WHERE 1=1 AND BID_STATUS=0
+		         	<include refid="search"></include>
+		                       ) MP
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY BID_ID DESC
+	</select>
+	<select id="bidListCount" parameterType="asadal.jaeyoung.paging.SearchCriteria" resultType="int">
+		SELECT COUNT(BID_ID)
+		   FROM BID
+		   WHERE 1=1
+		<include refid="search"></include>	
+		   AND BID_ID > 0
+	</select>
+		<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND bid_TITLE LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND bid_CONTENT LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'w'.toString()">AND bid_WRITER LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'tc'.toString()">AND (bid_TITLE LIKE '%' || #{keyword} || '%') or (bid_CONTENT LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>
+			<select id="read" parameterType="int" resultType="asadal.jaeyoung.vo.BidVO">
+		SELECT	bid_ID
+			  , bid_TITLE
+			  , bid_CONTENT
+			  , bid_WRITER
+			  , BID_PRICE
+			  , REGDATE
+			  ,	BID_STATUS
+		 FROM bid
+		 WHERE bid_ID = #{bid_id}
+	</select>
+	
+	    <update id="update" parameterType="asadal.jaeyoung.vo.BidVO">
+		UPDATE BID
+		   SET BID_TITLE=#{bid_title},
+		   	   BID_CONTENT=#{bid_content},
+		   	   BID_PRICE=#{bid_price}
+		 WHERE BID_ID = #{bid_id} 
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE 
+		  FROM bid
+		 WHERE bid_ID = #{bid_id}
+		 
+	</delete>
+	
+	<update id = "endBid" parameterType="asadal.jaeyoung.vo.BidVO">
+		UPDATE BID
+			SET BID_STATUS='1'
+			WHERE BID_ID=#{bid_id}
+	</update>
+	
+	<select id="bidEndListPage" resultType="asadal.jaeyoung.vo.BidVO" parameterType="asadal.jaeyoung.paging.SearchCriteria">
+		SELECT  BID_ID, 
+		        BID_TITLE, 
+		        BID_CONTENT,
+		        BID_WRITER, 
+		        REGDATE
+		 FROM ( 
+		        SELECT BID_ID, 
+		               BID_TITLE, 
+		               BID_CONTENT, 
+		               BID_WRITER, 
+		               REGDATE, 
+		               ROW_NUMBER() OVER(ORDER BY BID_ID DESC) AS RNUM
+		         FROM BID
+		         WHERE 1=1 AND BID_STATUS=1
+		         	<include refid="search"></include>
+		                       ) MP
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY BID_ID DESC
+	</select>
+	
+		<!-- 첨부파일 저장 -->
+    <insert id="insertFile" parameterType="hashMap">
+		INSERT INTO BID_FILE(
+			FILE_NO,
+			BID_ID,
+			ORG_FILE_NAME,
+			STORED_FILE_NAME,
+			FILE_SIZE
+		)VALUES(
+			BID_FILE_SEQ.NEXTVAL,
+			#{BID_ID},
+			#{ORG_FILE_NAME},
+			#{STORED_FILE_NAME},
+			#{FILE_SIZE}
+		)
+    </insert>
+    <!-- 첨부파일 조회 -->
+<select id="selectFileList" parameterType="int" resultType="hashMap">
+	SELECT FILE_NO,
+		   ORG_FILE_NAME,
+		   ROUND(FILE_SIZE/1024,1) AS FILE_SIZE
+	  FROM BID_FILE
+	 WHERE BID_ID = #{BID_ID}
+	   AND DEL_GB = 'N'
+	 ORDER BY FILE_NO ASC
+</select>
+<!-- 첨부파일 수정 -->
+    <update id="updateFile" parameterType="hashMap">
+    	UPDATE BID_FILE SET
+    	DEL_GB = 'Y'
+    	WHERE FILE_NO = #{FILE_NO}
+    </update>
+
+<!-- 첨부파일 다운 -->
+<select id="selectFileInfo" parameterType="hashMap" resultType="hashMap">
+	SELECT 
+		STORED_FILE_NAME,
+		ORG_FILE_NAME
+	FROM BID_FILE
+	WHERE FILE_NO = #{FILE_NO}
+</select>
+
+</mapper>

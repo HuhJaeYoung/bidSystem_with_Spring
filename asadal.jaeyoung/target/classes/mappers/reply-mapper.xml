@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="replyMapper">
+
+	<!-- 댓글 조회 -->
+	<select id="replyRead" resultType="asadal.jaeyoung.vo.ReplyVO">
+		SELECT
+		REPLY_ID, REPLY_CONTENT, REPLY_WRITER, REPLY_REGDATE
+		FROM REPLY
+		WHERE BOARD_ID = #{board_id}
+	</select>
+	<!-- 댓글 작성 -->
+	<insert id="replyWrite">
+	INSERT INTO REPLY(
+		BOARD_ID
+		, REPLY_ID
+		, REPLY_CONTENT
+		, REPLY_WRITER
+	)
+	VALUES(    #{board_id}
+		, REPLY_SEQ.NEXTVAL
+		, #{reply_content}
+		, #{reply_writer}	)
+	</insert>
+	
+	<!-- 댓글 수정 -->
+	<update id="replyUpdate" parameterType="asadal.jaeyoung.vo.ReplyVO">
+		UPDATE REPLY SET REPLY_CONTENT = #{reply_content}
+		WHERE REPLY_ID = #{reply_id}
+	</update>
+
+<!-- 댓글 삭제 -->
+	<delete id="replyDelete" parameterType="asadal.jaeyoung.vo.ReplyVO">
+		DELETE FROM REPLY
+		WHERE REPLY_ID = #{reply_id}
+	</delete>
+	
+<!-- 선택된 댓글 조회 -->
+	<select id="replySelect" resultType="asadal.jaeyoung.vo.ReplyVO">
+		SELECT
+				BOARD_ID
+			  , REPLY_ID
+			  , REPLY_CONTENT
+			  , REPLY_WRITER
+			  , REPLY_REGDATE
+		  FROM REPLY
+		 WHERE REPLY_ID = #{reply_id}
+	</select>
+
+</mapper>

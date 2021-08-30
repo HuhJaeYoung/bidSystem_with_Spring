@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="scheduleMapper">
+
+	<select id ="showSchedule" resultType="ScheduleVO">
+		SELECT SUBJECT,STARTDATE,ENDDATE,MEMO
+		FROM SCHEDULE
+        ORDER BY SCH_ID DESC
+	</select>
+	<insert id="addSchedule" parameterType = "ScheduleVO">
+		INSERT INTO
+			SCHEDULE(SCH_ID,SUBJECT,STARTDATE,ENDDATE,MEMO)
+		VALUES
+			(SCH_SEQ.NEXTVAL,#{subject},#{startDate},#{endDate},#{memo})
+	</insert>
+	
+	<delete id ="deleteSchedule" parameterType="int">
+		DELETE 
+		  FROM SCHEDULE
+		 WHERE SCH_ID = #{sch_id}
+	
+	</delete>
+	
+	<select id="scheduleListPage" resultType="asadal.jaeyoung.vo.ScheduleVO" parameterType="asadal.jaeyoung.paging.SearchCriteria">
+		SELECT  SCH_ID, 
+		        SUBJECT, 
+		        STARTDATE,
+		        ENDDATE, 
+		        MEMO
+		 FROM ( 
+		        SELECT  SCH_ID, 
+		       			SUBJECT, 
+		       			STARTDATE,
+		      			ENDDATE, 
+		      			MEMO,
+		               ROW_NUMBER() OVER(ORDER BY SCH_ID DESC) AS RNUM
+		         FROM SCHEDULE
+		         WHERE 1=1 
+		         	<include refid="search"></include>
+		                       ) MP
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY SCH_ID DESC
+	</select>
+	
+	<select id="listCount" parameterType="asadal.jaeyoung.paging.SearchCriteria" resultType="int">
+		SELECT COUNT(SCH_ID)
+		   FROM SCHEDULE
+		   WHERE 1=1
+		<include refid="search"></include>	
+		   AND SCH_ID > 0
+	</select>
+	
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND SUBJECT LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND STARTDATE LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'w'.toString()">AND ENDDATE LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'tc'.toString()">AND (SUBJECT LIKE '%' || #{keyword} || '%') or (MEMO LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>
+
+</mapper>
