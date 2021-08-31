@@ -39,6 +39,7 @@ li {
 							<th>ID</th>
 							<th>이름</th>
 							<th>핸드폰번호</th>
+							<th>Email</th>
 							<th>권한</th>
 							<th>사용가능상태</th>
 					</tr>
@@ -50,6 +51,7 @@ li {
 							<td><c:out value="${memberList.userId}" /></td>
 							<td><a href="/admin/updateView?userId=${memberList.userId}&page=${scri.page}&perPageNum=${scri.perPageNum}&searchType=${scri.searchType}&keyword=${scri.keyword}"><c:out value="${memberList.userName}" /></a></td>
 							<td><c:out value="${memberList.phoneNum}" /></td>
+							<td><c:out value="${memberList.email}" /></td>
 							<td><c:out value="${memberList.auth}" /></td>
 							<td><c:if test="${memberList.enabled == '1' }"><c:out value="활성화"/></c:if>
 							<c:if test="${memberList.enabled == '0' }"><c:out value="비활성화"/></c:if>

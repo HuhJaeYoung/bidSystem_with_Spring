@@ -74,7 +74,8 @@
 			<div class="form-group">
 				<label for="writer" class="col-sm-2 control-label">작성자</label><input
 					type="text" id="writer" name="writer"
-					class="form-control" class="chk"title="작성자를 입력하세요"
+					class="form-control" class="chk"title="작성자를 입력하세요" value="${member.userId}"
+					readonly="readonly"
 					 />
 			</div>
 

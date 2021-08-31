@@ -61,7 +61,7 @@
 			<form action="/member/update" method="post">
 				<div class="form-group has-feedback">
 					<label class="control-label" for="userId">아이디</label>
-					<input class="form-control" type="text" id="userId" name="userId" value="${member.userId}" readonly="readonly"/>
+					<input class="form-control" type="text" id="userId" name="userId" value="${updateUser.userId}" readonly="readonly"/>
 				</div>
 				<div class="form-group has-feedback">
 					<label class="control-label" for="userPass">패스워드</label>
@@ -69,15 +69,15 @@
 				</div>
 				<div class="form-group has-feedback">
 					<label class="control-label" for="userName">성명</label>
-					<input class="form-control" type="text" id="userName" name="userName" value="${member.userName}"/>
+					<input class="form-control" type="text" id="userName" name="userName" value="${updateUser.userName}"/>
 				</div>
 				<div class="form-group has-feedback">
 					<label class="control-label" for="phoneNum">핸드폰 번호 (-까지 입력해주세요)</label>
-					<input class="form-control" type="text" id="phoneNum" name="phoneNum" value="${member.phoneNum}"/>
+					<input class="form-control" type="text" id="phoneNum" name="phoneNum" value="${updateUser.phoneNum}"/>
 				</div>
 				<div class="form-group has-feedback">
 					<label class="control-label" for="email">E-Mail</label>
-					<input class="form-control" type="text" id="email" name="email" value="${member.email}"/>
+					<input class="form-control" type="text" id="email" name="email" value="${updateUser.email}"/>
 				</div>
 				<input type="hidden" id="auth" name="auth" value="${member.auth}">
 				<input type="hidden" id="enabled" name="enabled" value="${member.enabled}">						

@@ -56,6 +56,13 @@
 				<textarea id="board_content" name="board_content"
 					class="form-control" class="chk"title="내용을 입력하세요" ></textarea>
 			</div>
+						<div class="form-group">
+				<label for="writer" class="col-sm-2 control-label">작성자</label><input
+					type="text" id="writer" name="writer"
+					class="form-control" class="chk"title="작성자를 입력하세요" value="${member.userId}"
+					readonly="readonly"
+					 />
+			</div>
 					<button class="write_btn btn btn-dark" type="submit" >작성</button>
 							
 				

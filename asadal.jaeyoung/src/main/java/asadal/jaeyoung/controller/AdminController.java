@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import asadal.jaeyoung.paging.PageMaker;
 import asadal.jaeyoung.paging.SearchCriteria;
+import asadal.jaeyoung.security.AES256;
 import asadal.jaeyoung.service.MemberService;
 import asadal.jaeyoung.service.ScheduleService;
 import asadal.jaeyoung.vo.MemberVO;
@@ -25,6 +26,7 @@ public class AdminController {
 	@Autowired
 	private ScheduleService scheduleService;
 	
+	AES256 aes256 = new AES256();
 	
 	@RequestMapping(value="/admin/index",method=RequestMethod.GET)
 	public String adminIndex(HttpSession session) {
@@ -41,10 +43,12 @@ public class AdminController {
 	@RequestMapping(value="/admin/memberList",method=RequestMethod.GET)
 	public String noticeList(HttpSession session,Model model, @ModelAttribute("scri") SearchCriteria scri) throws Exception{
 		MemberVO hasSessionMemberVO = (MemberVO)session.getAttribute("member");
-		if((hasSessionMemberVO==null) || (!hasSessionMemberVO.getAuth().equals("ROLE_ADMIN"))) {
+				if((hasSessionMemberVO==null) || (!hasSessionMemberVO.getAuth().equals("ROLE_ADMIN"))) {
 			return "redirect:/";
 		}
 		else {
+			
+			
 		model.addAttribute("memberList",memberService.memberList(scri));
 		
 		PageMaker pageMaker = new PageMaker();
@@ -62,6 +66,8 @@ public class AdminController {
 			return "redirect:/";
 		}else {
 		MemberVO userVO = memberService.getByUserId(userId);
+		userVO.setPhoneNum(aes256.decrypt(userVO.getPhoneNum()));
+		userVO.setEmail(aes256.decrypt(userVO.getEmail()));
 		
 		model.addAttribute("updateUser", userVO);
 		return "admin/updateView";

@@ -7,11 +7,14 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import asadal.jaeyoung.security.AES256;
+import asadal.jaeyoung.security.SHA512;
 import asadal.jaeyoung.service.MemberService;
 import asadal.jaeyoung.vo.MemberVO;
 
@@ -22,6 +25,9 @@ public class MemberController {
 	
 	@Inject
 	private MemberService memberService;
+	
+	SHA512 sha512=new SHA512();
+	AES256 aes256 = new AES256();
 	
 	//회원가입 get
 	@RequestMapping(value="/member/signUpView", method= RequestMethod.GET)
@@ -34,6 +40,7 @@ public class MemberController {
 	public String signUp(MemberVO memberVO) throws Exception{
 		logger.info("signUp");
 		int result=memberService.memberIdChk(memberVO);
+		System.out.println(memberVO);
 		try {
 			
 			if(result==1) {
@@ -57,7 +64,7 @@ public class MemberController {
 		HttpSession session = req.getSession();
 		
 		MemberVO login = memberService.memberLogin(memberVO);
-
+		
 	
 		if((login == null)||(login.getEnabled()==0)) {
 			session.setAttribute("member", null);
@@ -79,7 +86,11 @@ public class MemberController {
 	}
 	
 	@RequestMapping(value="/member/updateView",method = RequestMethod.GET)
-	public String memberUpdateView() throws Exception{
+	public String memberUpdateView(HttpSession session,Model model) throws Exception{
+		MemberVO userVO = (MemberVO)session.getAttribute("member");
+		userVO.setPhoneNum(aes256.decrypt(userVO.getPhoneNum()));
+		userVO.setEmail(aes256.decrypt(userVO.getEmail()));
+		model.addAttribute("updateUser",userVO);
 		return "member/updateView";
 	}
 	@RequestMapping(value="/member/update",method = RequestMethod.POST)
@@ -101,8 +112,9 @@ public class MemberController {
 		
 		
 		String sessionPass = member.getUserPass();
-		
-		String voPass= memberVO.getUserPass();
+		System.out.println(sessionPass+"   sessionPass");
+		String voPass= sha512.getSha512(memberVO.getUserPass());
+		System.out.println(voPass+"   voPass");
 		
 		
 		if(!(sessionPass.equals(voPass))) {
