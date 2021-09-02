@@ -102,5 +102,10 @@
 		SELECT * FROM MEMBER
 		WHERE USERID=#{userId}
 	</select>
+	<select id ="getByUserPass" parameterType="String" resultType="String">
+		SELECT USERPASSWORD
+		FROM MEMBER
+		WHERE USERID=#{userId}
+	</select>
 	
 </mapper>

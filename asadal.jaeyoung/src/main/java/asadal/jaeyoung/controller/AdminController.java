@@ -29,9 +29,8 @@ public class AdminController {
 	AES256 aes256 = new AES256();
 	
 	@RequestMapping(value="/admin/index",method=RequestMethod.GET)
-	public String adminIndex(HttpSession session) {
+	public String adminIndex(HttpSession session) throws Exception{
 		MemberVO hasSessionMemberVO = (MemberVO)session.getAttribute("member");
-		
 		if((hasSessionMemberVO==null) || (!hasSessionMemberVO.getAuth().equals("ROLE_ADMIN"))) {
 			return "redirect:/";
 		}
@@ -75,7 +74,24 @@ public class AdminController {
 	}
 	@RequestMapping(value="/admin/memberUpdate",method=RequestMethod.POST)
 	public String adminMemberUpdate(MemberVO updateUserVO) throws Exception{
+		String upPass = updateUserVO.getUserPass();
+		System.out.println(memberService.getByUserPass(updateUserVO.getUserId())+"원래 비밀번호");
+		if(updateUserVO.getAuth()==null) {
+			updateUserVO.setAuth("ROLE_USER");
+		}
+		if(upPass=="") {
+			
+			
+			updateUserVO.setUserPass(null);
+			memberService.memberUpdate(updateUserVO);
+			
+		}
+		
+		else {
+		
 		memberService.memberUpdate(updateUserVO);
+		}
+	
 		return "redirect:/admin/memberList";
 	}
 	@RequestMapping(value="/admin/adminSchedule", method=RequestMethod.GET)

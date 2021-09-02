@@ -55,4 +55,9 @@ public class MemberDAOImpl implements MemberDAO {
 	public MemberVO getByUserId(String userId) throws Exception{
 		return sqlSession.selectOne("memberMapper.getByUserId", userId);
 	}
+	
+	@Override
+	public String getByUserPass(String userId) throws Exception{
+		return sqlSession.selectOne("memberMapper.getByUserPass",userId);
+	}
 }

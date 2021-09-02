@@ -26,4 +26,6 @@ public interface MemberDAO {
 	//관리자가 수정할 회원 가져오기
 	public MemberVO getByUserId(String userId) throws Exception;
 	
+	public String getByUserPass(String userId) throws Exception;
+	
 }

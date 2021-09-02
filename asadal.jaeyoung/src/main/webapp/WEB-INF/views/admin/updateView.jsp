@@ -39,7 +39,7 @@
 				</div>
 				<div class="form-group has-feedback">
 					<label class="control-label" for="userPass">패스워드</label>
-					<input class="form-control" type="password" id="userPass" name="userPass"  value="${updateUser.userPass }" />
+					<input class="form-control" type="password" id="userPass" name="userPass"/>
 				
 				</div>
 				<div class="form-group has-feedback">
@@ -56,8 +56,13 @@
 				</div>
 				<div class="form-group has-feedback">
 					<label class="control-label" for="email">ROLE</label>
-					<input class="form-control" type="text" id="auth" name="auth" value="${updateUser.auth}"/>
-				</div>
+					<select id ="auth" name="auth">
+						<option value="" selected disabled>선택하세요</option>
+						<option value="ROLE_USER">사용자</option>
+						<option value="ROLE_ADMIN">관리자</option>
+					</select>
+<%-- 					<input class="form-control" type="text" id="auth" name="auth" value="${updateUser.auth}"/>
+ --%>				</div>
 				<div class="form-group has-feedback">
 					<label class="control-label" for="email">활성화</label>
 					<input class="form-control" type="text" id="enabled" name="enabled" value="${updateUser.enabled}"/>

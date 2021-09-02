@@ -58,10 +58,17 @@ public class MemberServiceImpl implements MemberService{
 	
 	@Override
 	public void memberUpdate(MemberVO memberVO) throws Exception{
-		String password = memberVO.getUserPass();
-		String encode = sha512.getSha512(password);
-		System.out.println(encode);
-		memberVO.setUserPass(encode);
+		
+		if(memberVO.getUserPass()==null) {
+			memberVO.setUserPass(memberDAO.getByUserPass(memberVO.getUserId()));
+		}
+		else {
+			String password = memberVO.getUserPass();
+			String encode = sha512.getSha512(password);
+			System.out.println(encode);
+			memberVO.setUserPass(encode);
+			
+		}
 		memberVO.setEmail(aes256.encrypt(memberVO.getEmail()));
 		memberVO.setPhoneNum(aes256.encrypt(memberVO.getPhoneNum()));
 		memberDAO.memberUpdate(memberVO);
@@ -101,6 +108,11 @@ public class MemberServiceImpl implements MemberService{
 	@Override
 	public MemberVO getByUserId(String userId) throws Exception{
 		return memberDAO.getByUserId(userId);
+	}
+	
+	@Override
+	public String getByUserPass(String userId) throws Exception{
+		return memberDAO.getByUserPass(userId);
 	}
 	
 }

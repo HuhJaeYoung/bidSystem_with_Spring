@@ -22,5 +22,7 @@ public interface MemberService {
 	public int memberIdChk(MemberVO memberVO) throws Exception;
 	
 	public MemberVO getByUserId(String userId) throws Exception;
+	
+	public String getByUserPass(String userId) throws Exception;
 
 }
